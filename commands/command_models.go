@@ -2,13 +2,13 @@ package commands
 
 import (
 	"fmt"
-	"github.com/alexisvisco/pocketpase-gen/codegen"
-	"github.com/pocketbase/pocketbase/models"
-	"github.com/spf13/cobra"
-	"github.com/stoewer/go-strcase"
-	"golang.org/x/exp/slog"
+	"log/slog"
 	"os"
 	"path"
+
+	"github.com/alexisvisco/pocketpase-gen/codegen"
+	"github.com/spf13/cobra"
+	"github.com/stoewer/go-strcase"
 )
 
 var ModelsCommand = &cobra.Command{
@@ -28,15 +28,10 @@ func init() {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	dao, err := OpenDao()
-	if err != nil {
-		return err
-	}
+	collections, err := GetCollections()
 
-	var collections []models.Collection
-	err = dao.CollectionQuery().All(&collections)
 	if err != nil {
-		return fmt.Errorf("failed to get collections: %w", err)
+		return fmt.Errorf("failed to open app: %w", err)
 	}
 
 	if Verbose {
@@ -59,7 +54,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	modelBuilders := make([]*codegen.ModelBuilder, 0, len(collections))
 	for _, collection := range collections {
-		schema, err := codegen.ModelBuilderFromSchema(packageName, collection.Name, &collection.Schema)
+		schema, err := codegen.ModelBuilderFromSchema(packageName, collection.Name, &collection.Fields)
 		if err != nil {
 			return fmt.Errorf("failed to create model builder for collection %s from schema: %w", collection.Name, err)
 		}

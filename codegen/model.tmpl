@@ -10,7 +10,7 @@ import (
 
 // {{.ModelName}} is a wrapper around models.Record for type safe operations on the collection {{.CollectionName}}.
 type {{.ModelName}} struct {
-    Record *models.Record
+    Record *core.Record
 }
 {{- range $i, $e := .Fields }}
 

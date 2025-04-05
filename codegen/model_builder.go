@@ -4,9 +4,10 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
-	"github.com/pocketbase/pocketbase/models/schema"
-	"github.com/stoewer/go-strcase"
 	"text/template"
+
+	"github.com/pocketbase/pocketbase/core"
+	"github.com/stoewer/go-strcase"
 )
 
 //go:embed model.tmpl
@@ -23,7 +24,7 @@ type ModelBuilder struct {
 	Fields []Field
 }
 
-func ModelBuilderFromSchema(pkgName string, collectionName string, s *schema.Schema) (*ModelBuilder, error) {
+func ModelBuilderFromSchema(pkgName string, collectionName string, s *core.FieldsList) (*ModelBuilder, error) {
 	mb := &ModelBuilder{
 		PackageName:    strcase.SnakeCase(pkgName),
 		ModelName:      strcase.UpperCamelCase(collectionName),
@@ -31,13 +32,13 @@ func ModelBuilderFromSchema(pkgName string, collectionName string, s *schema.Sch
 		Imports:        Imports{},
 	}
 
-	mb.Imports.addImport("github.com/pocketbase/pocketbase/models", "")
+	mb.Imports.addImport("github.com/pocketbase/pocketbase/core", "")
 
-	for _, field := range s.Fields() {
+	for _, field := range s.AsMap() {
 
 		mbField := Field{
-			FieldName:    field.Name,
-			FunctionName: strcase.UpperCamelCase(field.Name),
+			FieldName:    field.GetName(),
+			FunctionName: strcase.UpperCamelCase(field.GetName()),
 		}
 
 		if err := resolveSchemaField(mb, field, &mbField); err != nil {
@@ -105,41 +106,41 @@ type Field struct {
 	SetterComment string
 }
 
-func resolveSchemaField(builder *ModelBuilder, field *schema.SchemaField, f *Field) error {
-	f.GetterComment = fmt.Sprintf(`// Get%s returns the value of the "%s" field`, f.FunctionName, field.Name)
-	f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field`, f.FunctionName, field.Name)
+func resolveSchemaField(builder *ModelBuilder, field core.Field, f *Field) error {
+	f.GetterComment = fmt.Sprintf(`// Get%s returns the value of the "%s" field`, f.FunctionName, field.GetName())
+	f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field`, f.FunctionName, field.GetName())
 
-	switch field.Type {
-	case schema.FieldTypeText:
+	switch field.Type() {
+	case core.FieldTypeText:
 		f.GoType = "string"
 		f.GetterCall = `GetString`
 
-	case schema.FieldTypeEditor:
+	case core.FieldTypeEditor:
 		f.GoType = "string"
 		f.GetterCall = `GetString`
 		f.GetterComment = fmt.Sprintf(`// Get%s returns the value of the "%s" field as HTML`, f.FunctionName,
-			field.Name)
+			field.GetName())
 		f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field as HTML`, f.FunctionName,
-			field.Name)
+			field.GetName())
 
-	case schema.FieldTypeUrl:
+	case core.FieldTypeURL:
 		f.GoType = "string"
 		f.GetterCall = `GetString`
-		f.GetterComment = fmt.Sprintf(`// Get%s returns the value of the "%s" field as URL`, f.FunctionName, field.Name)
-		f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field as URL`, f.FunctionName, field.Name)
+		f.GetterComment = fmt.Sprintf(`// Get%s returns the value of the "%s" field as URL`, f.FunctionName, field.GetName())
+		f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field as URL`, f.FunctionName, field.GetName())
 
-	case schema.FieldTypeEmail:
+	case core.FieldTypeEmail:
 		f.GoType = "string"
 		f.GetterCall = `GetString`
 		f.GetterComment = fmt.Sprintf(`// Get%s returns the value of the "%s" field as email`, f.FunctionName,
-			field.Name)
-		f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field as email`, f.FunctionName, field.Name)
-	case schema.FieldTypeFile:
-		option := field.Options.(*schema.FileOptions)
+			field.GetName())
+		f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field as email`, f.FunctionName, field.GetName())
+	case core.FieldTypeFile:
+		IsMultiple := field.(*core.FileField).IsMultiple()
 		f.GetterComment = fmt.Sprintf(`// Get%s returns the value of the "%s" field as file`, f.FunctionName,
-			field.Name)
-		f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field as file`, f.FunctionName, field.Name)
-		if option.IsMultiple() {
+			field.GetName())
+		f.SetterComment = fmt.Sprintf(`// Set%s sets the value of the "%s" field as file`, f.FunctionName, field.GetName())
+		if IsMultiple {
 			f.GoType = "[]string"
 			f.GetterCall = `GetStringSlice`
 		} else {
@@ -147,24 +148,35 @@ func resolveSchemaField(builder *ModelBuilder, field *schema.SchemaField, f *Fie
 			f.GetterCall = `GetString`
 		}
 
-	case schema.FieldTypeNumber:
+	case core.FieldTypeNumber:
 		f.GoType = "int"
 		f.GetterCall = `GetInt`
 
-	case schema.FieldTypeBool:
+	case core.FieldTypeBool:
 		f.GoType = "bool"
 		f.GetterCall = `GetBool`
 
-	case schema.FieldTypeDate:
+	case core.FieldTypePassword:
+		f.GoType = "string"
+		f.GetterCall = `GetString`
+
+	case core.FieldTypeDate:
 		builder.Imports.addImport("github.com/pocketbase/pocketbase/tools/types", "")
 		f.GoType = "types.DateTime"
 		f.GetterCall = `GetDateTime`
 
-	case schema.FieldTypeSelect:
-		option := field.Options.(*schema.SelectOptions)
-		f.GetterComment += fmt.Sprintf("\n// Possible values: %s", option.Values)
-		f.SetterComment += fmt.Sprintf("\n// Possible values: %s", option.Values)
-		if option.IsMultiple() {
+	case core.FieldTypeAutodate:
+		builder.Imports.addImport("github.com/pocketbase/pocketbase/tools/types", "")
+		f.GoType = "types.DateTime"
+		f.GetterCall = `GetDateTime`
+
+	case core.FieldTypeSelect:
+		IsMultiple := field.(*core.SelectField).IsMultiple()
+		values := field.(*core.SelectField).Values
+		f.GetterComment += fmt.Sprintf("\n// Possible values: %s", values)
+		f.SetterComment += fmt.Sprintf("\n// Possible values: %s", values)
+
+		if IsMultiple {
 			f.GoType = "[]string"
 			f.GetterCall = `GetStringSlice`
 		} else {
@@ -172,19 +184,20 @@ func resolveSchemaField(builder *ModelBuilder, field *schema.SchemaField, f *Fie
 			f.GetterCall = `GetString`
 		}
 
-	case schema.FieldTypeJson:
+	case core.FieldTypeJSON:
 		builder.Imports.addImport("github.com/pocketbase/pocketbase/tools/types", "")
-		f.GoType = "types.JsonRaw"
+		f.GoType = "types.JSONRaw"
 		f.GetterCall = `Get`
 		f.HasGetterCast = true
 
-	case schema.FieldTypeRelation:
-		option := field.Options.(*schema.RelationOptions)
+	case core.FieldTypeRelation:
+		IsMultiple := field.(*core.RelationField).IsMultiple()
+		collectionId := field.(*core.RelationField).CollectionId
 		f.GetterComment += fmt.Sprintf("\n// Relation collection related : %s",
-			option.CollectionId /* TODO: resolve it name */)
+			collectionId /* TODO: resolve it name */)
 		f.SetterComment += fmt.Sprintf("\n// Relation collection related : %s",
-			option.CollectionId /* TODO: resolve it name */)
-		if option.IsMultiple() {
+			collectionId /* TODO: resolve it name */)
+		if IsMultiple {
 			f.GoType = "[]string"
 			f.GetterCall = `GetStringSlice`
 		} else {
@@ -193,7 +206,7 @@ func resolveSchemaField(builder *ModelBuilder, field *schema.SchemaField, f *Fie
 		}
 
 	default:
-		return fmt.Errorf("unknown field type %s", field.Type)
+		return fmt.Errorf("unknown field type %s", field.Type())
 	}
 
 	return nil
