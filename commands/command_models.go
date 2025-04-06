@@ -23,8 +23,8 @@ var (
 )
 
 func init() {
-	ModelsCommand.PersistentFlags().StringVar(&packageFolder, "package-folder", "modelspb", "path to package folder")
-	ModelsCommand.PersistentFlags().StringVar(&packageName, "package-name", "modelspb", "name of the package")
+	ModelsCommand.PersistentFlags().StringVar(&packageFolder, "package-folder", "collections", "path to package folder")
+	ModelsCommand.PersistentFlags().StringVar(&packageName, "package-name", "collections", "name of the package")
 }
 
 func run(cmd *cobra.Command, args []string) error {

@@ -15,15 +15,15 @@ Usage:
 
 Flags:
   -h, --help                    help for models
-      --package-folder string   path to package folder (default "modelspb")
-      --package-name string     name of the package (default "modelspb")
+      --package-folder string   path to package folder (default "collections")
+      --package-name string     name of the package (default "collections")
 
 Global Flags:
       --db-path string   path to pocketbase instance sqlite file (default "pb_data/data.db")
       --verbose          enable verbose mode
 ```
 
-Runnin `pb-gen models` will create a folder `modelspb` with all the models of the pocketbase instance.
+Runnin `pb-gen models` will create a folder `collections` with all the models of the pocketbase instance.
 By default the db-path is `pb_data/data.db`.
 
 ## Currently supported things
