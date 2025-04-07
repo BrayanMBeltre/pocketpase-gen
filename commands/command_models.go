@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/alexisvisco/pocketpase-gen/codegen"
 	"github.com/spf13/cobra"
@@ -53,6 +54,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	modelBuilders := make([]*codegen.ModelBuilder, 0, len(collections))
+	collectionNames := make([]string, 0, len(collections))
 	for _, collection := range collections {
 		schema, err := codegen.ModelBuilderFromSchema(packageName, collection.Name, &collection.Fields)
 		if err != nil {
@@ -60,6 +62,7 @@ func run(cmd *cobra.Command, args []string) error {
 		}
 
 		modelBuilders = append(modelBuilders, schema)
+		collectionNames = append(collectionNames, collection.Name)
 	}
 
 	files := map[string]string{}
@@ -72,6 +75,10 @@ func run(cmd *cobra.Command, args []string) error {
 		files[fmt.Sprintf("%s.go", strcase.SnakeCase(modelBuilder.ModelName))] = file
 	}
 
+	// Generate collections.go
+	collectionsFileContent := generateCollectionsFile(packageName, collectionNames)
+	files["collections.go"] = collectionsFileContent
+
 	for file, content := range files {
 		if err := os.WriteFile(path.Join(packageFolder, file), []byte(content), 0644); err != nil {
 			return fmt.Errorf("failed to write file %s: %w", file, err)
@@ -79,4 +86,15 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func generateCollectionsFile(packageName string, collectionNames []string) string {
+	var builder strings.Builder
+	builder.WriteString(fmt.Sprintf("package %s\n\n", packageName))
+	builder.WriteString("const (\n")
+	for _, name := range collectionNames {
+		builder.WriteString(fmt.Sprintf("\tCollection%s string = \"%s\"\n", strcase.UpperCamelCase(name), name))
+	}
+	builder.WriteString(")\n")
+	return builder.String()
 }
