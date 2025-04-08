@@ -2,12 +2,16 @@ package generator
 
 import (
 	"bytes"
+	_ "embed"
 	"fmt"
 	"text/template"
 
 	"github.com/alexisvisco/pocketpase-gen/internal/pocketbase"
 	"github.com/stoewer/go-strcase"
 )
+
+//go:embed schema_template.tmpl
+var schemaTemplate string
 
 type CollectionData struct {
 	PackageName string
@@ -46,8 +50,7 @@ func GenerateCollectionSchemaFileContent(packageName string, collections []pocke
 		data.Collections = append(data.Collections, collectionData)
 	}
 
-	// Load the template file
-	tmpl, err := template.ParseFiles("internal/generator/schema_template.tmpl")
+	tmpl, err := template.New("schema_template.tmpl").Parse(schemaTemplate)
 	if err != nil {
 		return "", fmt.Errorf("failed to load template: %w", err)
 	}
