@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/alexisvisco/pocketpase-gen/internal/pocketbase"
+	"github.com/brayanmbeltre/pocketpase-gen/internal/pocketbase"
 	"github.com/stoewer/go-strcase"
 )
 

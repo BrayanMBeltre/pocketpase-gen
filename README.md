@@ -1,53 +1,57 @@
 # pocketpase-gen
 
-A code generation tool for PocketBase, designed to create type-safe Go models from your PocketBase schema.
+A code generation tool for PocketBase, designed to create type-safe Go models
+from your PocketBase schema.
 
 ## Overview
 
-`pocketpase-gen` simplifies PocketBase development in Go by automatically generating Go structs that represent your PocketBase collections. These generated structs provide type-safe access to your data, reducing the risk of errors and improving developer productivity.
+`pocketpase-gen` simplifies PocketBase development in Go by automatically
+generating Go structs that represent your PocketBase collections. These
+generated structs provide type-safe access to your data, reducing the risk of
+errors and improving developer productivity.
 
 ## Features
 
-*   **Model Generation:** Generates Go structs with getter and setter methods for each field in your PocketBase collections.
-*   **Type Safety:** Ensures type safety by mapping PocketBase field types to appropriate Go types.
-*   **Customizable Output:**  Specify the output directory and package name for the generated code.
-*   **Easy Integration:** Seamlessly integrates with your existing PocketBase projects.
-*   **Informative Comments:** Includes comments with possible values for select fields and relation collections.
+- **Model Generation:** Generates Go structs with getter and setter methods for
+  each field in your PocketBase collections.
+- **Type Safety:** Ensures type safety by mapping PocketBase field types to
+  appropriate Go types.
+- **Customizable Output:** Specify the output directory and package name for the
+  generated code.
+- **Easy Integration:** Seamlessly integrates with your existing PocketBase
+  projects.
+- **Informative Comments:** Includes comments with possible values for select
+  fields and relation collections.
 
 ## Installation
 
-1.  Install the binary using `go install github.com/alexisvisco/pocketpase-gen/cmd/pb-gen@latest`
+1. Install the binary using
+   `go install github.com/brayanmbeltre/pocketpase-gen/cmd/pb-gen@latest`
 
 ## Usage
 
 The tool is invoked via the `pb-gen` command with the `models` subcommand.
 
 ```bash
-pb-gen models [flags]
+pb-gen [flags]
 ```
 
 ### Flags
 
-| Flag             | Shorthand | Description                                                                 | Default Value     |
-| ---------------- | --------- | --------------------------------------------------------------------------- | ----------------- |
-| `--db-path`      |           | Path to the PocketBase SQLite database file.                                | `pb_data/data.db` |
-| `--package-folder` |           | Directory where the generated Go files will be placed.                      | `modelspb`        |
-| `--package-name`   |           | The name of the Go package for the generated files.                         | `modelspb`        |
-| `--verbose`        |           | Enable verbose logging.                                                     | `false`           |
-| `--help`           | `-h`      | Show help text.                                                             |                   |
-
-### Example
-
-To generate models for a PocketBase instance with the database located at `my_pb_data/data.db`, placing the generated files in a directory named `collections` with package name `collections`:
-
-```bash
-pb-gen generate
-```
+| Flag               | Shorthand | Description                                            | Default Value     |
+| ------------------ | --------- | ------------------------------------------------------ | ----------------- |
+| `--db-path`        |           | Path to the PocketBase SQLite database file.           | `pb_data/data.db` |
+| `--package-folder` |           | Directory where the generated Go files will be placed. | `modelspb`        |
+| `--package-name`   |           | The name of the Go package for the generated files.    | `modelspb`        |
+| `--verbose`        |           | Enable verbose logging.                                | `false`           |
+| `--help`           | `-h`      | Show help text.                                        |                   |
 
 ### Example Output and Usage
 
-Let's say you have a "posts" collection in PocketBase with fields like "title", "content", and "author". After running `pocketpase-gen`, you'll have a `posts.go` file in your specified output directory (e.g., `collections/collections.go`).
-
+Let's say you have a "posts" collection in PocketBase with fields like "title",
+"content", and "author". After running `pocketpase-gen`, you'll have a
+`posts.go` file in your specified output directory (e.g.,
+`collections/collections.go`).
 
 ### Example of generated collections file
 
@@ -57,32 +61,32 @@ package collections
 
 // Posts provides structured access to the posts collection.
 var Posts = struct {
-	CollectionName string
-	Fields struct {
-		Id      string
-		Title   string
-		Content string
-		Author  string
-		Created string
-		Updated string
-	}
+ CollectionName string
+ Fields struct {
+  Id      string
+  Title   string
+  Content string
+  Author  string
+  Created string
+  Updated string
+ }
 }{
-	CollectionName: "posts",
-	Fields: struct {
-		Id      string
-		Title   string
-		Content string
-		Author  string
-		Created string
-		Updated string
-	}{
-		Id:      "id",
-		Title:   "title",
-		Content: "content",
-		Author:  "author",
-		Created: "created",
-		Updated: "updated",
-	},
+ CollectionName: "posts",
+ Fields: struct {
+  Id      string
+  Title   string
+  Content string
+  Author  string
+  Created string
+  Updated string
+ }{
+  Id:      "id",
+  Title:   "title",
+  Content: "content",
+  Author:  "author",
+  Created: "created",
+  Updated: "updated",
+ },
 }
 ```
 
@@ -116,7 +120,11 @@ app.Logger().Info("Post created successfully", "id", record.Id)
 
 In this example:
 
-*   `collections.Posts.CollectionName` provides the name of the "posts" collection.
-*   `collections.Posts.Fields.Title`, `collections.Posts.Fields.Content`, and `collections.Posts.Fields.Author` provide the field names for the "title", "content", and "author" fields, respectively.
+- `collections.Posts.CollectionName` provides the name of the "posts"
+  collection.
+- `collections.Posts.Fields.Title`, `collections.Posts.Fields.Content`, and
+  `collections.Posts.Fields.Author` provide the field names for the "title",
+  "content", and "author" fields, respectively.
 
-This approach ensures that you're using the correct collection and field names, reducing the risk of typos and errors.
+This approach ensures that you're using the correct collection and field names,
+reducing the risk of typos and errors.

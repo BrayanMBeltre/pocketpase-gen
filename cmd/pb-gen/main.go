@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/alexisvisco/pocketpase-gen/cmd/pb-gen/commands" // Import commands package
+	"github.com/brayanmbeltre/pocketpase-gen/cmd/pb-gen/commands" // Import commands package
 )
 
 func main() {

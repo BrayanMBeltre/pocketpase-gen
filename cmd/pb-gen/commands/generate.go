@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alexisvisco/pocketpase-gen/internal/generator"
-	"github.com/alexisvisco/pocketpase-gen/internal/pocketbase"
+	"github.com/brayanmbeltre/pocketpase-gen/internal/generator"
+	"github.com/brayanmbeltre/pocketpase-gen/internal/pocketbase"
 	"github.com/spf13/cobra"
 )
 

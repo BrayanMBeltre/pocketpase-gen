@@ -1,4 +1,4 @@
-module github.com/alexisvisco/pocketpase-gen
+module github.com/brayanmbeltre/pocketpase-gen
 
 go 1.23.0
 
