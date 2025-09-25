@@ -4,15 +4,21 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 )
 
+type Field struct {
+	Name   string
+	Values []string
+}
+
 type CollectionSchema struct {
 	Name   string
-	Fields []string
+	Fields []Field
 }
 
 func GetCollections(dbPath string, verbose bool) ([]CollectionSchema, error) {
@@ -44,14 +50,33 @@ func GetCollections(dbPath string, verbose bool) ([]CollectionSchema, error) {
 
 		schema := CollectionSchema{
 			Name:   collection.Name,
-			Fields: make([]string, 0, len(collection.Fields)),
+			Fields: make([]Field, 0, len(collection.Fields)),
 		}
 
 		for _, field := range collection.Fields {
-			schema.Fields = append(schema.Fields, field.GetName())
+			fieldName := field.GetName()
+			var fieldValues []string
+
+			if selectField, ok := field.(*core.SelectField); ok {
+				fieldValues = selectField.Values
+			}
+
+			schema.Fields = append(schema.Fields, Field{
+				Name:   fieldName,
+				Values: slugifyFieldValues(fieldValues),
+			})
 		}
+
 		result = append(result, schema)
 	}
 
 	return result, nil
+}
+
+func slugifyFieldValues(values []string) []string {
+	result := make([]string, 0, len(values))
+	for _, value := range values {
+		result = append(result, strings.Replace(value, " ", "_", -1))
+	}
+	return result
 }

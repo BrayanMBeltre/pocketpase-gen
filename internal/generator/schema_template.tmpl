@@ -23,3 +23,16 @@ var {{ .StructName }} = struct {
     },
 }
 {{ end }}
+
+
+const (
+{{- range $collection := .Collections -}}
+    {{- range $field := $collection.Fields -}}
+        {{- if $field.Options -}}
+            {{- range $option := $field.Options }}
+    {{ $collection.StructName | printf "%s" }}_{{ $field.FieldName | printf "%s" }}_{{ $option | printf "%s" }} = "{{ $option | printf "%s" }}"
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+{{ "\n" }})

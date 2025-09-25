@@ -27,6 +27,7 @@ type CollectionTemplateData struct {
 type FieldTemplateData struct {
 	GoFieldName string
 	FieldName   string
+	Options     []string
 }
 
 func GenerateCollectionSchemaFileContent(packageName string, collections []pocketbase.CollectionSchema) (string, error) {
@@ -40,10 +41,11 @@ func GenerateCollectionSchemaFileContent(packageName string, collections []pocke
 			CollectionName: collection.Name,
 		}
 
-		for _, fieldName := range collection.Fields {
+		for _, field := range collection.Fields {
 			collectionData.Fields = append(collectionData.Fields, FieldTemplateData{
-				GoFieldName: strcase.UpperCamelCase(fieldName),
-				FieldName:   fieldName,
+				GoFieldName: strcase.UpperCamelCase(field.Name),
+				FieldName:   field.Name,
+				Options:     field.Values,
 			})
 		}
 
