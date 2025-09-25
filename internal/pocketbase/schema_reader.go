@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pocketbase/dbx"
@@ -63,7 +62,7 @@ func GetCollections(dbPath string, verbose bool) ([]CollectionSchema, error) {
 
 			schema.Fields = append(schema.Fields, Field{
 				Name:   fieldName,
-				Values: slugifyFieldValues(fieldValues),
+				Values: fieldValues,
 			})
 		}
 
@@ -71,12 +70,4 @@ func GetCollections(dbPath string, verbose bool) ([]CollectionSchema, error) {
 	}
 
 	return result, nil
-}
-
-func slugifyFieldValues(values []string) []string {
-	result := make([]string, 0, len(values))
-	for _, value := range values {
-		result = append(result, strings.Replace(value, " ", "_", -1))
-	}
-	return result
 }

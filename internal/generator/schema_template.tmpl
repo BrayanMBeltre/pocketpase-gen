@@ -30,7 +30,7 @@ const (
     {{- range $field := $collection.Fields -}}
         {{- if $field.Options -}}
             {{- range $option := $field.Options }}
-    {{ $collection.StructName | printf "%s" }}_{{ $field.FieldName | printf "%s" }}_{{ $option | printf "%s" }} = "{{ $option | printf "%s" }}"
+                {{ $collection.StructName | SnakeCase | ToUpper | printf "%s" }}_{{ $field.FieldName | SnakeCase | ToUpper | printf "%s" }}_{{ $option |SnakeCase | ToUpper | printf "%s" }} = "{{ $option | printf "%s" }}"
             {{- end -}}
         {{- end -}}
     {{- end -}}

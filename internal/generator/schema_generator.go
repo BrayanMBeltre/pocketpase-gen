@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"github.com/brayanmbeltre/pocketpase-gen/internal/pocketbase"
@@ -52,7 +53,12 @@ func GenerateCollectionSchemaFileContent(packageName string, collections []pocke
 		data.Collections = append(data.Collections, collectionData)
 	}
 
-	tmpl, err := template.New("schema_template.tmpl").Parse(schemaTemplate)
+	funcMap := template.FuncMap{
+		"ToUpper":   strings.ToUpper,
+		"SnakeCase": strcase.SnakeCase,
+	}
+
+	tmpl, err := template.New("schema_template.tmpl").Funcs(funcMap).Parse(schemaTemplate)
 	if err != nil {
 		return "", fmt.Errorf("failed to load template: %w", err)
 	}
