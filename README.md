@@ -26,7 +26,7 @@ errors and improving developer productivity.
 ## Installation
 
 1. Install the binary using
-   `go install github.com/brayanmbeltre/pocketpase-gen/cmd/pb-gen@latest`
+   `go install github.com/brayanmbeltre/pocketpase-gen/cmd/pb-gen`
 
 ## Usage
 

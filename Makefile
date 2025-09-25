@@ -1,7 +1,7 @@
 generate:
 	@echo "Starting..."
 
-	@go run ./cmd/pb-gen/main.go generate
+	@go run ./cmd/pb-gen/main.go 
 
 build:
 	@echo "Building..."
