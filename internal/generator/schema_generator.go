@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/brayanmbeltre/pocketpase-gen/internal/pocketbase"
+	"github.com/brayanmbeltre/pb-gen/internal/pocketbase"
 	"github.com/stoewer/go-strcase"
 )
 
